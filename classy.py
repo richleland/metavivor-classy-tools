@@ -13,27 +13,32 @@ def cli():
 def list_campaigns():
     campaigns = get_campaigns_from_api(ORG_ID)
     click.echo(f"Number of campaigns: {len(campaigns)}")
-    click.echo("The following campaigns are in Classy:")
+    if campaigns:
+        click.echo("The following campaigns are in Classy:")
     for campaign in campaigns:
         click.echo(f"[{campaign['id']}] {campaign['name']}")
 
 
 @click.command()
-def list_teams():
-    teams = get_fundraising_teams_from_api(319115)
+@click.argument("campaign_id", type=click.INT)
+def list_teams(campaign_id):
+    teams = get_fundraising_teams_from_api(campaign_id)
     click.echo(f"Number of teams: {len(teams)}")
-    click.echo("The following teams are in Classy:")
-    for team in teams:
-        click.echo(f"[{team['id']}] {team['name']}")
+    if teams:
+        click.echo("The following teams are in Classy:")
+        for team in teams:
+            click.echo(f"[{team['id']}] {team['name']}")
 
 
 @click.command()
-def list_pages():
-    pages = get_fundraising_pages_from_api(319115)
+@click.argument("campaign_id", type=click.INT)
+def list_pages(campaign_id):
+    pages = get_fundraising_pages_from_api(campaign_id)
     click.echo(f"Number of pages: {len(pages)}")
-    click.echo("The following pages are in Classy:")
-    for page in pages:
-        click.echo(f"[{page['id']}] {page['alias']}")
+    if pages:
+        click.echo("The following pages are in Classy:")
+        for page in pages:
+            click.echo(f"[{page['id']}] {page['alias']}")
 
 
 cli.add_command(list_campaigns)
