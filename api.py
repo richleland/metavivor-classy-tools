@@ -1,14 +1,9 @@
 # import json
-import os
 
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 
-CLIENT_ID = os.environ["CLASSY_CLIENT_ID"]
-CLIENT_SECRET = os.environ["CLASSY_CLIENT_SECRET"]
-ORG_ID = os.environ["CLASSY_ORG_ID"]
-TOKEN_URL = "https://api.classy.org/oauth2/auth"
-API_URL = "https://api.classy.org/2.0"
+from config import CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_URL
 
 client = BackendApplicationClient(client_id=CLIENT_ID)
 session = OAuth2Session(client=client)
