@@ -1,6 +1,6 @@
 import click
 
-from upload import ORG_ID, get_teams_from_api, get_campaigns_from_api
+from api import ORG_ID, get_teams_from_api, get_campaigns_from_api
 
 
 @click.group()
