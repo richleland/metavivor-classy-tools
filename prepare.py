@@ -2,11 +2,10 @@ import csv
 import json
 from datetime import datetime
 
-formatted = []
-with open("input/checks-2021-03-07.csv") as csvfile:
-    reader = csv.DictReader(csvfile)
 
-    for row in reader:
+def format_data(input_data):
+    formatted = []
+    for row in input_data:
         converted = {
             "billing_first_name": row["Donor First Name"] or None,
             "billing_last_name": row["Donor Last Name"] or None,
@@ -18,7 +17,8 @@ with open("input/checks-2021-03-07.csv") as csvfile:
             "billing_country": row["Billing Country"] or None,
             "company_name": row["Company Name"] or None,
             "comment": row["special handling"] or None,
-            "fundraising_page_id": row["Individual Page ID"] or None,
+            "fundraising_page_id": None,
+            "fundraising_team_id": None,
             "items": [
                 {
                     "overhead_amount": 0,
@@ -40,7 +40,20 @@ with open("input/checks-2021-03-07.csv") as csvfile:
             "purchased_at": datetime.strptime(row["Transaction Date"], "%m/%d/%y").strftime("%Y-%m-%dT12:00:00-0500"),
         }
 
-        formatted.append(converted)
+        if row["Individual Page ID"]:
+            converted["fundraising_page_id"] = int(row["Individual Page ID"])
 
-with open("output/checks-2021-03-07.json", "w") as f:
-    json.dump(formatted, f, indent=2)
+        if row["Team Page ID"]:
+            converted["fundraising_team_id"] = int(row["Team Page ID"])
+
+        formatted.append(converted)
+    return formatted
+
+
+if __name__ == "__main__":
+    with open("input/checks-2021-03-07.csv") as csvfile:
+        csv_data = csv.DictReader(csvfile)
+        formatted = format_data(csv_data)
+
+    with open("output/checks-2021-03-07.json", "w") as f:
+        json.dump(formatted, f, indent=2)
