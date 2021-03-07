@@ -1,4 +1,4 @@
-import json
+# import json
 import os
 
 from oauthlib.oauth2 import BackendApplicationClient
@@ -19,22 +19,43 @@ token = session.fetch_token(
     include_client_id=True,
 )
 
-# get a transaction
-response = session.get(f"{API_URL}/transactions/42112117/items")
-response.raise_for_status()
-with open("output/response-get-transaction.json", "w") as f:
-    json.dump(response.json(), f, indent=2)
 
-# get fundraising pages
-response = session.get(f"{API_URL}/campaigns/319115/fundraising-pages")
-response.raise_for_status()
-with open("output/response-fundraising-pages.json", "w") as f:
-    json.dump(response.json(), f, indent=2)
+def get_teams_from_api(campaign_id, url=None):
+    if not url:
+        url = f"{API_URL}/campaigns/{campaign_id}/fundraising-teams"
 
-# create an offline transaction
-with open("input/test-transaction.json") as f:
-    payload = json.load(f)
-response = session.post(f"{API_URL}/campaigns/319115/transactions", json=payload)
-with open("output/response-create-transaction.json", "w") as f:
-    json.dump(response.json(), f, indent=2)
-print(f"Done. Response status: {response.status_code}")
+    response = session.get(url)
+    response.raise_for_status()
+    response_json = response.json()
+
+    # append the current page's data
+    teams = response_json["data"]
+
+    # see if there's a next page
+    next_page_url = response_json["next_page_url"]
+    if next_page_url:
+        teams = teams + get_teams_from_api(campaign_id, next_page_url)
+
+    # return the teams from all pages
+    return teams
+
+
+# # get a transaction
+# response = session.get(f"{API_URL}/transactions/42112117/items")
+# response.raise_for_status()
+# with open("output/response-get-transaction.json", "w") as f:
+#     json.dump(response.json(), f, indent=2)
+
+# # get fundraising pages
+# response = session.get(f"{API_URL}/campaigns/319115/fundraising-pages")
+# response.raise_for_status()
+# with open("output/response-fundraising-pages.json", "w") as f:
+#     json.dump(response.json(), f, indent=2)
+
+# # create an offline transaction
+# with open("input/test-transaction.json") as f:
+#     payload = json.load(f)
+# response = session.post(f"{API_URL}/campaigns/319115/transactions", json=payload)
+# with open("output/response-create-transaction.json", "w") as f:
+#     json.dump(response.json(), f, indent=2)
+# print(f"Done. Response status: {response.status_code}")
