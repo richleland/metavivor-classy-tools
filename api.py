@@ -35,7 +35,7 @@ def get_campaigns_from_api(org_id, url=None):
     return campaigns
 
 
-def get_teams_from_api(campaign_id, url=None):
+def get_fundraising_teams_from_api(campaign_id, url=None):
     if not url:
         url = f"{API_URL}/campaigns/{campaign_id}/fundraising-teams"
 
@@ -49,10 +49,30 @@ def get_teams_from_api(campaign_id, url=None):
     # see if there's a next page
     next_page_url = response_json["next_page_url"]
     if next_page_url:
-        teams = teams + get_teams_from_api(campaign_id, next_page_url)
+        teams = teams + get_fundraising_teams_from_api(campaign_id, next_page_url)
 
     # return the teams from all pages
     return teams
+
+
+def get_fundraising_pages_from_api(campaign_id, url=None):
+    if not url:
+        url = f"{API_URL}/campaigns/{campaign_id}/fundraising-pages"
+
+    response = session.get(url)
+    response.raise_for_status()
+    response_json = response.json()
+
+    # append the current page's data
+    pages = response_json["data"]
+
+    # see if there's a next page
+    next_page_url = response_json["next_page_url"]
+    if next_page_url:
+        pages = pages + get_fundraising_pages_from_api(campaign_id, next_page_url)
+
+    # return the pages from all pages
+    return pages
 
 
 # # get a transaction
