@@ -75,22 +75,7 @@ def get_fundraising_pages_from_api(campaign_id, url=None):
     return pages
 
 
-# # get a transaction
-# response = session.get(f"{API_URL}/transactions/42112117/items")
-# response.raise_for_status()
-# with open("output/response-get-transaction.json", "w") as f:
-#     json.dump(response.json(), f, indent=2)
-
-# # get fundraising pages
-# response = session.get(f"{API_URL}/campaigns/319115/fundraising-pages")
-# response.raise_for_status()
-# with open("output/response-fundraising-pages.json", "w") as f:
-#     json.dump(response.json(), f, indent=2)
-
-# # create an offline transaction
-# with open("input/test-transaction.json") as f:
-#     payload = json.load(f)
-# response = session.post(f"{API_URL}/campaigns/319115/transactions", json=payload)
-# with open("output/response-create-transaction.json", "w") as f:
-#     json.dump(response.json(), f, indent=2)
-# print(f"Done. Response status: {response.status_code}")
+def create_offline_transactions(campaign_id, payload):
+    response = session.post(f"{API_URL}/campaigns/{campaign_id}/transactions", json=payload)
+    response.raise_for_status()
+    return response.json()
