@@ -61,6 +61,7 @@ def test_all_keys_present(data_all_fields):
                 "city": None,
                 "country": None,
                 "ecard_message": None,
+                "email_address": None,
                 "honoree_name": "Sam Jones",
                 "name": None,
                 "postal_code": None,

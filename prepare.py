@@ -79,6 +79,7 @@ def format_data(input_data):
                 "state": row["Dedication Contact State"] or None,
                 "postal_code": row["Dedication Contact Postal Code"] or None,
                 "country": row["Dedication Contact Country"] or None,
+                "email_address": row["Dedication Contact Email"] or None,
                 "ecard_message": row["Dedication Message"] or None,
             }
 
