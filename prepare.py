@@ -1,12 +1,34 @@
-import csv
-import json
 from datetime import datetime
 
 
+def format_type(dedication_type):
+    """
+    Formats the dedication type for Classy
+
+    Classy expected the dedication type to be either 'memory' or 'honor'. Here we
+    convert the value to lowercase, trim any leading or trailing whitespace, and convert
+    the value to what Classy expects. We fall back to a None value for unmatched input.
+    """
+    dedication_type = dedication_type.lower().strip()
+    if dedication_type == "in memory of":
+        return "memory"
+    elif dedication_type == "in honor of":
+        return "honor"
+    return None
+
+
 def format_data(input_data):
+    """
+    Formats the input data in preparation for Classy API calls
+
+    We take the input data, which is expected to be an instance of csv.DictReader, and
+    create a list of dicts, each having two keys - transaction and dedication. These are
+    separate keys because we need to first create the transaction, then create the
+    dedication via the Classy API.
+    """
     formatted = []
     for row in input_data:
-        converted = {
+        transaction = {
             "billing_first_name": row["Donor First Name"] or None,
             "billing_last_name": row["Donor Last Name"] or None,
             "billing_address1": row["Billing Address 1"] or None,
@@ -41,19 +63,29 @@ def format_data(input_data):
         }
 
         if row["Individual Page ID"]:
-            converted["fundraising_page_id"] = int(row["Individual Page ID"])
+            transaction["fundraising_page_id"] = int(row["Individual Page ID"])
 
         if row["Team Page ID"]:
-            converted["fundraising_team_id"] = int(row["Team Page ID"])
+            transaction["fundraising_team_id"] = int(row["Team Page ID"])
 
-        formatted.append(converted)
+        dedication = {}
+        if row["Dedication Type"] and row["Dedication Name"]:
+            dedication = {
+                "type": format_type(row["Dedication Type"]),
+                "honoree_name": row["Dedication Name"],
+                "name": row["Dedication Contact Name"] or None,
+                "address": row["Dedication Contact Address"] or None,
+                "city": row["Dedication Contact City"] or None,
+                "state": row["Dedication Contact State"] or None,
+                "postal_code": row["Dedication Contact Postal Code"] or None,
+                "country": row["Dedication Contact Country"] or None,
+                "ecard_message": row["Dedication Message"] or None,
+            }
+
+        formatted.append(
+            {
+                "transaction": transaction,
+                "dedication": dedication,
+            }
+        )
     return formatted
-
-
-if __name__ == "__main__":
-    with open("input/checks-2021-03-07.csv") as csvfile:
-        csv_data = csv.DictReader(csvfile)
-        formatted = format_data(csv_data)
-
-    with open("output/checks-2021-03-07.json", "w") as f:
-        json.dump(formatted, f, indent=2)
