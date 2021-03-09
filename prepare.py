@@ -51,6 +51,9 @@ def format_data(input_data):
                     "type": "donation",
                 }
             ],
+            "metadata": {
+                "script": True,
+            },
             "member_email_address": row["Billing Email Address"] or None,
             "member_phone": row["donor phone"] or None,
             "offline_payment_info": {
