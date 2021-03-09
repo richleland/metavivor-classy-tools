@@ -1,15 +1,19 @@
+import csv
 import json
 from datetime import datetime
+from pathlib import Path
 
 import click
 
 from api import (
-    create_offline_transactions,
+    create_dedication,
+    create_offline_transaction,
     get_campaigns_from_api,
     get_fundraising_pages_from_api,
     get_fundraising_teams_from_api,
 )
 from config import ORG_ID
+from prepare import format_data
 
 
 @click.group()
@@ -51,22 +55,50 @@ def list_pages(campaign_id):
 
 @click.command()
 @click.argument("campaign_id", type=click.INT)
-def upload_transactions(campaign_id):
-    """
-    TODO: make this handle multiple inputs, not just a single record.
-    Logs for example should include multiple records
-    """
-    with open("input/test-transaction.json") as f:
-        payload = json.load(f)
+@click.argument("file_path", type=click.STRING)
+def upload_transactions(campaign_id, file_path):
+    path = Path(file_path)
+    if not path.is_file():
+        click.secho(f"{file_path} is not a valid file. Please retry with the path to a valid file.", fg="red")
+        exit(1)
 
-    result = create_offline_transactions(campaign_id, payload)
+    # prepare the transaction data
+    formatted = None
+    with path.open() as csv_file:
+        csv_data = csv.DictReader(csv_file)
+        formatted = format_data(csv_data)
+
+    if not formatted:
+        click.secho("No formatted data to upload. Please check input CSV file.", fg="red")
+        exit(1)
+
+    click.echo(f"Transactions to process: {len(formatted)}")
+
+    results = {}
+    for item in formatted:
+        transaction_payload = item["transaction"]
+        dedication_payload = item["dedication"]
+
+        transaction_result = create_offline_transaction(campaign_id, transaction_payload)
+        transaction_id = transaction_result["id"]
+
+        dedication_result = None
+        if dedication_payload:
+            dedication_result = create_dedication(transaction_id, dedication_payload)
+
+        # store the API results
+        results[transaction_id] = {
+            "transaction": transaction_result,
+            "dedication": dedication_result,
+        }
+
     right_now = datetime.now().strftime("%Y-%m-%d-%H:%M")
-    file_path = f"output/upload-results-{right_now}.csv"
+    log_file_path = f"output/upload-results-{right_now}.csv"
 
-    with open(file_path, "w") as f:
-        json.dump(result, f, indent=2)
+    with open(log_file_path, "w") as f:
+        json.dump(results, f, indent=2)
 
-    click.secho(f"Done. Upload results logged to {file_path}")
+    click.secho(f"Done. Upload results logged to {log_file_path}")
 
 
 cli.add_command(list_campaigns)
