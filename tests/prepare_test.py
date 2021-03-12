@@ -46,8 +46,10 @@ def test_all_keys_present(data_all_fields):
                         "type": "donation",
                     }
                 ],
+                "member_name": "Alex Jones",
                 "member_email_address": "test@test.com",
                 "member_phone": "555-123-4567",
+                "metadata": {"script": True},
                 "offline_payment_info": {
                     "check_number": "100",
                     "description": "Check donation",
