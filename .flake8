@@ -1,9 +1,16 @@
 [flake8]
 exclude =
     .git,
+    .pytest_cache,
+    .venv,
+    .vscode,
     __pycache__,
     docs/source/conf.py,
     old,
     build,
     dist
+count = True
+max-complexity = 10
 max-line-length = 120
+show-source = True
+statistics = True
