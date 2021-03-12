@@ -1,9 +1,7 @@
-# import json
-
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 
-from config import CLIENT_ID, CLIENT_SECRET, TOKEN_URL, API_URL
+from config import API_URL, CLIENT_ID, CLIENT_SECRET, TOKEN_URL
 
 client = BackendApplicationClient(client_id=CLIENT_ID)
 session = OAuth2Session(client=client)
