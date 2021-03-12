@@ -65,6 +65,9 @@ def format_data(input_data):
             "purchased_at": datetime.strptime(row["Transaction Date"], "%m/%d/%y").strftime("%Y-%m-%dT12:00:00-0500"),
         }
 
+        if row["Donor First Name"] or row["Donor Last Name"]:
+            transaction["member_name"] = " ".join([row["Donor First Name"], row["Donor Last Name"]])
+
         if row["Individual Page ID"]:
             transaction["fundraising_page_id"] = int(row["Individual Page ID"])
 
