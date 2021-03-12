@@ -31,7 +31,10 @@ jobs:
         flake8 .
     - name: Check imports with isort
       run: |
-        isort --check-only .
+        isort --check --diff .
+    - name: Check formatting with black
+      run: |
+        black --check --diff .
     - name: Test with pytest
       run: |
         pytest -vv
