@@ -23,8 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pipenv
-        pipenv install
+        pip install -r requirements.txt
     - name: Test with pytest
       run: |
-        pipenv run pytest -vv
+        pytest -vv
