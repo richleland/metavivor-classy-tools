@@ -93,7 +93,7 @@ def upload_transactions(campaign_id, file_path):
         }
 
     right_now = datetime.now().strftime("%Y-%m-%d-%H:%M")
-    log_file_path = f"output/upload-results-{right_now}.csv"
+    log_file_path = f"output/upload-results-{right_now}.json"
 
     with open(log_file_path, "w") as f:
         json.dump(results, f, indent=2)
