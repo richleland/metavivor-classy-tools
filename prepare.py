@@ -78,6 +78,16 @@ def format_data(input_data):
         if row["Team Page ID"]:
             transaction["fundraising_team_id"] = int(row["Team Page ID"])
 
+        # Classy has to have a member email in order to have the record show properly, and we need an email to flow
+        # through to our CRM, so we set member email to offline+{formatted_email}@metavivor.org, where formatted_email
+        # is either donor name or company name
+        if transaction["member_email_address"] is None:
+            if "member_name" in transaction:
+                formatted_email = transaction["member_name"].replace(" ", "").lower()
+            else:
+                formatted_email = transaction["company_name"].replace(" ", "").lower()
+            transaction["member_email_address"] = f"offline+{formatted_email}@metavivor.org"
+
         dedication = {}
         if row["Dedication Type"] and row["Dedication Name"]:
             dedication = {
