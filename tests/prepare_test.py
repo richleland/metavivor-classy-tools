@@ -83,3 +83,25 @@ def test_page_ids_are_ints_or_null(data_all_fields, data_no_page_ids):
     formatted = format_data(data_no_page_ids)[0]
     assert formatted["transaction"]["fundraising_page_id"] is None
     assert formatted["transaction"]["fundraising_team_id"] is None
+
+
+def test_empty_when_name_and_company_missing(data_all_fields):
+    data_all_fields[0]["Donor First Name"] = ""
+    data_all_fields[0]["Donor Last Name"] = ""
+    data_all_fields[0]["Company Name"] = ""
+    formatted = format_data(data_all_fields)
+    assert len(formatted) == 0
+
+
+def test_email_falls_back_to_billing_name(data_no_email):
+    expected = "offline+alexjones@metavivor.org"
+    formatted = format_data(data_no_email)[0]
+    assert formatted["transaction"]["member_email_address"] == expected
+
+
+def test_email_falls_back_to_company_name(data_no_email):
+    data_no_email[0]["Donor First Name"] = ""
+    data_no_email[0]["Donor Last Name"] = ""
+    expected = "offline+testcompany@metavivor.org"
+    formatted = format_data(data_no_email)[0]
+    assert formatted["transaction"]["member_email_address"] == expected
