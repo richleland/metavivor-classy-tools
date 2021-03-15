@@ -28,6 +28,10 @@ def format_data(input_data):
     """
     formatted = []
     for row in input_data:
+        # discard the row if it doesn't have either company name or donor first + last name
+        if not (row["Company Name"] or (row["Donor First Name"] and row["Donor Last Name"])):
+            continue
+
         transaction = {
             "billing_first_name": row["Donor First Name"] or None,
             "billing_last_name": row["Donor Last Name"] or None,
