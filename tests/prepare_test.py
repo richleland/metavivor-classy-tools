@@ -54,7 +54,7 @@ def test_all_keys_present(data_all_fields):
                     "check_number": "100",
                     "description": "Check donation",
                     "payment_type": "check",
-                    "sync_third_party": True,
+                    "sync_third_party": False,
                 },
                 "purchased_at": "2021-01-05T12:00:00-0500",
             },
