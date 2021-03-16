@@ -93,6 +93,22 @@ def test_empty_when_name_and_company_missing(data_all_fields):
     assert len(formatted) == 0
 
 
+@pytest.mark.parametrize(
+    "first_name, last_name, company_name, expected",
+    [
+        pytest.param("Erin", "O'Neill", "", "offline+erinoneill@metavivor.org", id="name with apostrophe"),
+        pytest.param("Rich", "☘️", "", "offline+rich@metavivor.org", id="name with emoji"),
+        pytest.param("", "", "Company+ 123!", "offline+company123@metavivor.org", id="company with symbols"),
+    ],
+)
+def test_only_alphanumeric_values_in_email(first_name, last_name, company_name, expected, data_no_email):
+    data_no_email[0]["Donor First Name"] = first_name
+    data_no_email[0]["Donor Last Name"] = last_name
+    data_no_email[0]["Company Name"] = company_name
+    formatted = format_data(data_no_email)[0]
+    assert formatted["transaction"]["member_email_address"] == expected
+
+
 def test_email_falls_back_to_billing_name(data_no_email):
     expected = "offline+alexjones@metavivor.org"
     formatted = format_data(data_no_email)[0]
