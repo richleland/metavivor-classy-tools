@@ -23,6 +23,7 @@ def cli():
 
 @click.command()
 def list_campaigns():
+    """List the campaigns for your organization"""
     campaigns = get_campaigns_from_api(ORG_ID)
     click.echo(f"Number of campaigns: {len(campaigns)}")
     if campaigns:
@@ -34,6 +35,7 @@ def list_campaigns():
 @click.command()
 @click.argument("campaign_id", type=click.INT)
 def list_teams(campaign_id):
+    """List the team pages for a campaign"""
     teams = get_fundraising_teams_from_api(campaign_id)
     click.echo(f"Number of teams: {len(teams)}")
     if teams:
@@ -45,6 +47,7 @@ def list_teams(campaign_id):
 @click.command()
 @click.argument("campaign_id", type=click.INT)
 def list_pages(campaign_id):
+    """List the individual pages for a campaign"""
     pages = get_fundraising_pages_from_api(campaign_id)
     click.echo(f"Number of pages: {len(pages)}")
     if pages:
@@ -56,7 +59,17 @@ def list_pages(campaign_id):
 @click.command()
 @click.argument("campaign_id", type=click.INT)
 @click.argument("file_path", type=click.STRING)
-def upload_transactions(campaign_id, file_path):
+@click.option(
+    "--dry-run",
+    "-d",
+    is_flag=True,
+    default=False,
+    type=bool,
+    show_default=True,
+    help="Do a dry run instead of calling the Classy API",
+)
+def upload_transactions(campaign_id, file_path, dry_run):
+    """Upload offline transactions through the Classy API"""
     path = Path(file_path)
     if not path.is_file():
         click.secho(f"{file_path} is not a valid file. Please retry with the path to a valid file.", fg="red")
@@ -79,21 +92,29 @@ def upload_transactions(campaign_id, file_path):
         transaction_payload = item["transaction"]
         dedication_payload = item["dedication"]
 
-        transaction_result = create_offline_transaction(campaign_id, transaction_payload)
-        transaction_id = transaction_result["id"]
+        if not dry_run:
+            transaction_result = create_offline_transaction(campaign_id, transaction_payload)
+            transaction_id = transaction_result["id"]
 
-        dedication_result = None
-        if dedication_payload:
-            dedication_result = create_dedication(transaction_id, dedication_payload)
+            dedication_result = None
+            if dedication_payload:
+                dedication_result = create_dedication(transaction_id, dedication_payload)
 
-        # store the API results
-        results[transaction_id] = {
-            "transaction": transaction_result,
-            "dedication": dedication_result,
-        }
+            # store the API results
+            results[transaction_id] = {
+                "transaction": transaction_result,
+                "dedication": dedication_result,
+            }
 
     right_now = datetime.now().strftime("%Y-%m-%d-%H:%M")
-    log_file_path = f"output/upload-results-{right_now}.json"
+
+    if dry_run:
+        # on dry runs, write the formatted input to a JSON file for inspection
+        results = formatted
+        log_file_path = f"output/dry-run-results-{right_now}.json"
+    else:
+        # on actual runs, write the responses from the API calls to a JSON file
+        log_file_path = f"output/upload-results-{right_now}.json"
 
     with open(log_file_path, "w") as f:
         json.dump(results, f, indent=2)

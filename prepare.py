@@ -64,7 +64,7 @@ def format_data(input_data):
                 "check_number": row["check number"],
                 "description": "Check donation",
                 "payment_type": "check",
-                "sync_third_party": False,
+                "sync_third_party": True,
             },
             "purchased_at": datetime.strptime(row["Transaction Date"], "%m/%d/%y").strftime("%Y-%m-%dT12:00:00-0500"),
         }
