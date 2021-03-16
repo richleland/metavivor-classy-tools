@@ -17,6 +17,7 @@ See Classy's documentation on [Requesting Access](https://developers.classy.org/
 - `CLASSY_CLIENT_ID` - OAuth2 client ID
 - `CLASSY_CLIENT_SECRET` - OAuth2 client secret
 - `CLASSY_ORG_ID` - your organization's ID. You can get this by signing into the Classy admin and copying it from the URL.
+- `CLASSY_DEFAULT_CAMPAIGN_ID` - the default campaign ID to upload transactions to. You can get this by signing into the Classy admin and copying it or by setting `CLASSY_OR_ID` and running the `list-campaigns` command.
 
 ## Using the CLI
 

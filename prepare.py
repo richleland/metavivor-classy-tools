@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from config import DEFAULT_CAMPAIGN_ID
+
 
 def format_type(dedication_type):
     """
@@ -105,8 +107,14 @@ def format_data(input_data):
                 "ecard_message": row["Dedication Message"] or None,
             }
 
+        if row["Campaign ID"]:
+            campaign_id = int(row["Campaign ID"])
+        else:
+            campaign_id = DEFAULT_CAMPAIGN_ID
+
         formatted.append(
             {
+                "campaign_id": campaign_id,
                 "transaction": transaction,
                 "dedication": dedication,
             }

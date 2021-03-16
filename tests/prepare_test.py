@@ -1,5 +1,6 @@
 import pytest
 
+from config import DEFAULT_CAMPAIGN_ID
 from prepare import format_data, format_type
 
 
@@ -23,6 +24,7 @@ def test_all_keys_present(data_all_fields):
     formatted = format_data(data_all_fields)
     expected = [
         {
+            "campaign_id": 111111,
             "transaction": {
                 "billing_first_name": "Alex",
                 "billing_last_name": "Jones",
@@ -121,3 +123,16 @@ def test_email_falls_back_to_company_name(data_no_email):
     expected = "offline+testcompany@metavivor.org"
     formatted = format_data(data_no_email)[0]
     assert formatted["transaction"]["member_email_address"] == expected
+
+
+@pytest.mark.parametrize(
+    "test_input, expected",
+    [
+        pytest.param("111111", 111111, id="use campaign ID as-is"),
+        pytest.param("", DEFAULT_CAMPAIGN_ID, id="fall back to default campaign ID"),
+    ],
+)
+def test_campaign_id(test_input, expected, data_all_fields):
+    data_all_fields[0]["Campaign ID"] = test_input
+    formatted = format_data(data_all_fields)[0]
+    assert formatted["campaign_id"] == expected
