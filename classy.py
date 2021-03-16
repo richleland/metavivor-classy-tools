@@ -57,7 +57,6 @@ def list_pages(campaign_id):
 
 
 @click.command()
-@click.argument("campaign_id", type=click.INT)
 @click.argument("file_path", type=click.STRING)
 @click.option(
     "--dry-run",
@@ -68,7 +67,7 @@ def list_pages(campaign_id):
     show_default=True,
     help="Do a dry run instead of calling the Classy API",
 )
-def upload_transactions(campaign_id, file_path, dry_run):
+def upload_transactions(file_path, dry_run):
     """Upload offline transactions through the Classy API"""
     path = Path(file_path)
     if not path.is_file():
@@ -89,6 +88,7 @@ def upload_transactions(campaign_id, file_path, dry_run):
 
     results = {}
     for item in formatted:
+        campaign_id = item["campaign_id"]
         transaction_payload = item["transaction"]
         dedication_payload = item["dedication"]
 
