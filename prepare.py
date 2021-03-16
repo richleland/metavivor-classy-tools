@@ -83,9 +83,11 @@ def format_data(input_data):
         # is either donor name or company name
         if transaction["member_email_address"] is None:
             if "member_name" in transaction:
-                formatted_email = transaction["member_name"].replace(" ", "").lower()
+                formatted_email = transaction["member_name"]
             else:
-                formatted_email = transaction["company_name"].replace(" ", "").lower()
+                formatted_email = transaction["company_name"]
+            # remove any non-alphanumeric characters and lowercase them
+            formatted_email = "".join([character.lower() for character in formatted_email if character.isalnum()])
             transaction["member_email_address"] = f"offline+{formatted_email}@metavivor.org"
 
         dedication = {}
