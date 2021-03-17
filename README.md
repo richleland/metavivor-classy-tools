@@ -42,7 +42,7 @@ pipenv run python classy.py list-pages CAMPAIGN_ID
 Upload offline transactions from a CSV file:
 
 ```sh
-pipenv run python classy.py upload-transactions CAMPAIGN_ID FILE_PATH
+pipenv run python classy.py upload-transactions FILE_PATH
 ```
 
 Print help information:
