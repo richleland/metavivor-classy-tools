@@ -1,8 +1,12 @@
 # METAvivor Classy Tools
 
-While working on the implementation of Classy for [METAvivor](https://www.metavivor.org), we needed a way to do bulk uploads of offline check transations. This code provides a command line interface for working with the [Classy API](https://developers.classy.org/api-docs/v2/index.html) to handle those bulk uploads.
+While working on the implementation of Classy for [METAvivor](https://www.metavivor.org), we needed a way to do bulk uploads of offline check transations. This code provides a command line interface (CLI) for working with the [Classy API](https://developers.classy.org/api-docs/v2/index.html) to handle those bulk uploads.
 
-## Installation
+## Prerequisites
+
+This project uses [pipenv](https://pipenv.pypa.io/) to mange the Python virtual environment, dependencies, and running the CLI.
+
+## Install dependencies
 
 ```sh
 pipenv install
@@ -18,6 +22,16 @@ See Classy's documentation on [Requesting Access](https://developers.classy.org/
 - `CLASSY_CLIENT_SECRET` - OAuth2 client secret
 - `CLASSY_ORG_ID` - your organization's ID. You can get this by signing into the Classy admin and copying it from the URL.
 - `CLASSY_DEFAULT_CAMPAIGN_ID` - the default campaign ID to upload transactions to. You can get this by signing into the Classy admin and copying it or by setting `CLASSY_OR_ID` and running the `list-campaigns` command.
+
+## Transactions template
+
+The included [transactions-template.csv](transactions-template.csv) can be used as a guide to see which fields are available and will be processed by the script. The mapping for how the data is formatted is in [prepare.py](prepare.py).
+
+## Input and output
+
+The CLI will read files from a folder named `input`. Place any CSVs you wish to use for batch uploading transactions in this folder.
+
+The CLI will generate JSON reports and store them in a folder named `output`. You can inspect these reports, which will contain the payload to be sent (dry run) or the response data returned from the Classy API (actual run), formatted to contain one entry per transaction ID.
 
 ## Using the CLI
 
