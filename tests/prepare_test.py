@@ -1,7 +1,7 @@
 import pytest
 
 from config import DEFAULT_CAMPAIGN_ID
-from prepare import format_data, format_type
+from prepare import format_data, format_type, validate_required
 
 
 @pytest.mark.parametrize(
@@ -95,6 +95,18 @@ def test_empty_when_name_and_company_missing(data_all_fields):
     assert len(formatted) == 0
 
 
+def test_empty_when_payment_type_missing(data_all_fields):
+    data_all_fields[0]["Payment Type"] = ""
+    formatted = format_data(data_all_fields)
+    assert len(formatted) == 0
+
+
+def test_check_number_exists_when_payment_type_is_check(data_all_fields):
+    data_all_fields[0]["check number"] = ""
+    formatted = format_data(data_all_fields)
+    assert len(formatted) == 0
+
+
 @pytest.mark.parametrize(
     "first_name, last_name, company_name, expected",
     [
@@ -136,3 +148,27 @@ def test_campaign_id(test_input, expected, data_all_fields):
     data_all_fields[0]["Campaign ID"] = test_input
     formatted = format_data(data_all_fields)[0]
     assert formatted["campaign_id"] == expected
+
+
+@pytest.mark.parametrize(
+    "test_input, expected",
+    [
+        pytest.param(
+            {"Payment Type": "fake-type", "Payment Description": "fake-description", "Gross Transaction Amount": "100"},
+            True,
+            id="all fields present",
+        ),
+        pytest.param(
+            {"Payment Type": "fake-type", "Payment Description": "fake-description", "Gross Transaction Amount": ""},
+            False,
+            id="missing any field",
+        ),
+        pytest.param(
+            {"Payment Type": "", "Payment Description": "", "Gross Transaction Amount": ""},
+            False,
+            id="missing all fields",
+        ),
+    ],
+)
+def test_validate_required(test_input, expected):
+    assert validate_required(test_input) == expected

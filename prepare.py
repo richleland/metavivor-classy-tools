@@ -7,9 +7,9 @@ def format_type(dedication_type):
     """
     Formats the dedication type for Classy
 
-    Classy expected the dedication type to be either 'memory' or 'honor'. Here we
-    convert the value to lowercase, trim any leading or trailing whitespace, and convert
-    the value to what Classy expects. We fall back to a None value for unmatched input.
+    Classy expected the dedication type to be either 'memory' or 'honor'. Here we  convert the value to lowercase, trim
+    any leading or trailing whitespace, and convert the value to what Classy expects. We fall back to a None value for
+    unmatched input.
     """
     dedication_type = dedication_type.lower().strip()
     if dedication_type == "in memory of":
@@ -17,6 +17,33 @@ def format_type(dedication_type):
     elif dedication_type == "in honor of":
         return "honor"
     return None
+
+
+def format_email(transaction):
+    """
+    Formats the email address for Classy
+
+    Classy has to have a member email in order to have the record show properly, and we need an email to flow through to
+    our CRM, so we set member email to offline+{formatted_email}@metavivor.org, where formatted_email is either donor
+    name or company name.
+    """
+    if transaction["member_email_address"] is None:
+        if "member_name" in transaction:
+            formatted_email = transaction["member_name"]
+        else:
+            formatted_email = transaction["company_name"]
+        # remove any non-alphanumeric characters and lowercase them
+        formatted_email = "".join([character.lower() for character in formatted_email if character.isalnum()])
+        return f"offline+{formatted_email}@metavivor.org"
+    return transaction["member_email_address"]
+
+
+def validate_required(row):
+    """
+    Validate that all required fields are present
+    """
+    required = ["Payment Type", "Payment Description", "Gross Transaction Amount"]
+    return all([row[field] for field in required])
 
 
 def format_data(input_data):
@@ -30,8 +57,15 @@ def format_data(input_data):
     """
     formatted = []
     for row in input_data:
+        if not validate_required(row):
+            continue
+
         # discard the row if it doesn't have either company name or donor first + last name
         if not (row["Company Name"] or (row["Donor First Name"] and row["Donor Last Name"])):
+            continue
+
+        # discard the row if the payment type is check but there is no check number
+        if row["Payment Type"] == "check" and not row["check number"]:
             continue
 
         transaction = {
@@ -63,9 +97,9 @@ def format_data(input_data):
             "member_email_address": row["Billing Email Address"] or None,
             "member_phone": row["donor phone"] or None,
             "offline_payment_info": {
-                "check_number": row["check number"],
-                "description": "Check donation",
-                "payment_type": "check",
+                "check_number": row["check number"] or None,
+                "description": row["Payment Description"],
+                "payment_type": row["Payment Type"].lower(),
                 "sync_third_party": True,
             },
             "purchased_at": datetime.strptime(row["Transaction Date"], "%m/%d/%y").strftime("%Y-%m-%dT12:00:00-0500"),
@@ -80,17 +114,7 @@ def format_data(input_data):
         if row["Team Page ID"]:
             transaction["fundraising_team_id"] = int(row["Team Page ID"])
 
-        # Classy has to have a member email in order to have the record show properly, and we need an email to flow
-        # through to our CRM, so we set member email to offline+{formatted_email}@metavivor.org, where formatted_email
-        # is either donor name or company name
-        if transaction["member_email_address"] is None:
-            if "member_name" in transaction:
-                formatted_email = transaction["member_name"]
-            else:
-                formatted_email = transaction["company_name"]
-            # remove any non-alphanumeric characters and lowercase them
-            formatted_email = "".join([character.lower() for character in formatted_email if character.isalnum()])
-            transaction["member_email_address"] = f"offline+{formatted_email}@metavivor.org"
+        transaction["member_email_address"] = format_email(transaction)
 
         dedication = {}
         if row["Dedication Type"] and row["Dedication Name"]:
@@ -107,10 +131,9 @@ def format_data(input_data):
                 "ecard_message": row["Dedication Message"] or None,
             }
 
+        campaign_id = DEFAULT_CAMPAIGN_ID
         if row["Campaign ID"]:
             campaign_id = int(row["Campaign ID"])
-        else:
-            campaign_id = DEFAULT_CAMPAIGN_ID
 
         formatted.append(
             {

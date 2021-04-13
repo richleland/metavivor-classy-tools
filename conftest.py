@@ -6,6 +6,8 @@ def data_all_fields():
     return [
         {
             "Transaction Date": "01/05/21",
+            "Payment Type": "check",
+            "Payment Description": "Check donation",
             "check number": "100",
             "Gross Transaction Amount": "1",
             "Company Name": "Test Company",
@@ -43,6 +45,8 @@ def data_no_page_ids():
     return [
         {
             "Transaction Date": "01/05/21",
+            "Payment Type": "check",
+            "Payment Description": "Check donation",
             "check number": "100",
             "Gross Transaction Amount": "1",
             "Company Name": "Test Company",
@@ -80,6 +84,8 @@ def data_no_email():
     return [
         {
             "Transaction Date": "01/05/21",
+            "Payment Type": "check",
+            "Payment Description": "Check donation",
             "check number": "100",
             "Gross Transaction Amount": "1",
             "Company Name": "Test Company",
