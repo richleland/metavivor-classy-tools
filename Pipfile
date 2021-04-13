@@ -11,6 +11,7 @@ flake8 = "*"
 black = "==20.8b1"
 safety = "*"
 pytest = "*"
+coverage = {extras = ["toml"],version = "*"}
 
 [packages]
 requests = "==2.25.1"
