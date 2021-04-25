@@ -29,7 +29,7 @@ def data_all_fields():
             "Dedication Contact Email": "pat@test.com",
             "Dedication Message": "Always here for you",
             "donor phone": "555-123-4567",
-            "special handling": "testing",
+            "special handling": "internal note",
             "QBO account or fundraiser": "donation",
             "Campaign ID": "111111",
             "Team Page ID": "4444444",

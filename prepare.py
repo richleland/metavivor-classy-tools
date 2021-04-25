@@ -19,6 +19,23 @@ def format_type(dedication_type):
     return None
 
 
+def format_email(transaction):
+    """
+    Format member email address
+
+    Classy has to have a member email in order to have the record show properly, and we need an email to flow through to
+    our CRM, so we set member email to offline+{formatted_email}@metavivor.org, where formatted_email is either donor
+    name or company name.
+    """
+    if "member_name" in transaction:
+        formatted_email = transaction["member_name"]
+    else:
+        formatted_email = transaction["company_name"]
+    # remove any non-alphanumeric characters and lowercase them
+    formatted_email = "".join([character.lower() for character in formatted_email if character.isalnum()])
+    return f"offline+{formatted_email}@metavivor.org"
+
+
 def format_data(input_data):
     """
     Formats the input data in preparation for Classy API calls
@@ -44,7 +61,7 @@ def format_data(input_data):
             "billing_postal_code": row["Billing Postal Code"] or None,
             "billing_country": row["Billing Country"] or None,
             "company_name": row["Company Name"] or None,
-            "comment": row["special handling"] or None,
+            "comment": None,
             "fundraising_page_id": None,
             "fundraising_team_id": None,
             "items": [
@@ -80,17 +97,16 @@ def format_data(input_data):
         if row["Team Page ID"]:
             transaction["fundraising_team_id"] = int(row["Team Page ID"])
 
+        # append an internal comment if it exists
+        if row["special handling"]:
+            description = transaction["offline_payment_info"]["description"]
+            transaction["offline_payment_info"]["description"] = f"{description}: {row['special handling']}"
+
         # Classy has to have a member email in order to have the record show properly, and we need an email to flow
         # through to our CRM, so we set member email to offline+{formatted_email}@metavivor.org, where formatted_email
         # is either donor name or company name
         if transaction["member_email_address"] is None:
-            if "member_name" in transaction:
-                formatted_email = transaction["member_name"]
-            else:
-                formatted_email = transaction["company_name"]
-            # remove any non-alphanumeric characters and lowercase them
-            formatted_email = "".join([character.lower() for character in formatted_email if character.isalnum()])
-            transaction["member_email_address"] = f"offline+{formatted_email}@metavivor.org"
+            transaction["member_email_address"] = format_email(transaction)
 
         dedication = {}
         if row["Dedication Type"] and row["Dedication Name"]:
