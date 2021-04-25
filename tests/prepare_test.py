@@ -35,7 +35,7 @@ def test_all_keys_present(data_all_fields):
                 "billing_postal_code": "12345",
                 "billing_country": "US",
                 "company_name": "Test Company",
-                "comment": "testing",
+                "comment": None,
                 "fundraising_page_id": 8888888,
                 "fundraising_team_id": 4444444,
                 "items": [
@@ -54,7 +54,7 @@ def test_all_keys_present(data_all_fields):
                 "metadata": {"script": True},
                 "offline_payment_info": {
                     "check_number": "100",
-                    "description": "Check donation",
+                    "description": "Check donation: internal note",
                     "payment_type": "check",
                     "sync_third_party": True,
                 },
@@ -136,3 +136,16 @@ def test_campaign_id(test_input, expected, data_all_fields):
     data_all_fields[0]["Campaign ID"] = test_input
     formatted = format_data(data_all_fields)[0]
     assert formatted["campaign_id"] == expected
+
+
+def test_internal_comment_present(data_all_fields):
+    formatted = format_data(data_all_fields)[0]
+    offline_payment_info = formatted["transaction"]["offline_payment_info"]
+    assert offline_payment_info["description"] == "Check donation: internal note"
+
+
+def test_internal_comment_empty(data_all_fields):
+    data_all_fields[0]["special handling"] = ""
+    formatted = format_data(data_all_fields)[0]
+    offline_payment_info = formatted["transaction"]["offline_payment_info"]
+    assert offline_payment_info["description"] == "Check donation"
