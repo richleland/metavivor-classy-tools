@@ -1,7 +1,7 @@
 import pytest
 
 from config import DEFAULT_CAMPAIGN_ID
-from prepare import format_data, format_type
+from prepare import format_data, format_type, validate_payment_type
 
 
 @pytest.mark.parametrize(
@@ -179,3 +179,16 @@ def test_check_number_not_required(payment_type, check_number, data_all_fields):
     offline_payment_info = formatted["transaction"]["offline_payment_info"]
     assert offline_payment_info["payment_type"] == payment_type
     assert "check_number" not in offline_payment_info
+
+
+def test_validate_payment_type_succeeds(data_all_fields):
+    # default type in fixture is check, which is OK
+    payment_type = data_all_fields[0]["Payment Type"]
+    result = validate_payment_type(payment_type)
+    assert result is True
+
+
+def test_validate_payment_type_fails():
+    # default type in fixture is check, which is OK
+    result = validate_payment_type("nonsense")
+    assert result is False
