@@ -68,3 +68,44 @@ pipenv run python classy.py --help
 ## About uploading transactions
 
 The input for transactions should be a CSV file. The mapping from METAvivor's data to Classy's API can be found in [prepare.py](prepare.py). An example input file can be found in the `tests` folder.
+
+## API notes
+
+Classy's [transaction API docs](https://developers.classy.org/api-docs/v2/index.html#transaction-transaction-post) don't have complete informaiton related to offline payments. They show only six available `offline_payment_info.payment_type`s, but there are more:
+
+* cash
+* check
+* corporate_match
+* cc
+* crypto
+* eft
+* pledge
+* sponsor
+* stock_donations
+* other
+
+All `offline_payment_info` objects follow this format, **except** for check donations:
+
+```json
+{
+    "offline_payment_info": {
+        "description": "offline payment description",
+        "payment_type": "eft",
+        "sync_third_party": false
+    }
+}
+```
+
+Check donations also include a `check_number`:
+
+```json
+{
+    "offline_payment_info": {
+        "description": "offline payment description",
+        "payment_type": "check",
+        "check_number": 123456,
+        "sync_third_party": false
+    }
+}
+```
+
