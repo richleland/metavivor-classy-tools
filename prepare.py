@@ -90,7 +90,9 @@ def validate_row(row):
 
     # discard the row if payment type is check and check number is missing
     if row["Payment Type"] == "check" and row["check number"].strip() == "":
-        False
+        return False
+
+    return True
 
 
 def format_data(input_data):
