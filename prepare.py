@@ -36,6 +36,65 @@ def format_email(transaction):
     return f"offline+{formatted_email}@metavivor.org"
 
 
+def format_offline_payment_info(row):
+    """
+    Format offline payment information
+    """
+    payment_type = row["Payment Type"]
+
+    offline_payment_info = {
+        "description": f"{payment_type} donation",
+        "payment_type": payment_type,
+        "sync_third_party": True,
+    }
+
+    # add check number if payment type is check
+    if payment_type == "check":
+        offline_payment_info["check_number"] = row["check number"]
+
+    # append an internal comment if it exists
+    if row["special handling"]:
+        description = offline_payment_info["description"]
+        offline_payment_info["description"] = f"{description}: {row['special handling']}"
+
+    return offline_payment_info
+
+
+def validate_payment_type(payment_type):
+    """
+    Ensures that payment type specified is valid for Classy API
+    """
+    valid_types = [
+        "cash",
+        "check",
+        "corporate_match",
+        "cc",
+        "crypto",
+        "eft",
+        "pledge",
+        "sponsor",
+        "stock_donations",
+        "other",
+    ]
+    return payment_type in valid_types
+
+
+def validate_row(row):
+    # discard the row if it doesn't have either company name or donor first + last name
+    if not (row["Company Name"] or (row["Donor First Name"] and row["Donor Last Name"])):
+        return False
+
+    # discard the row if the payment type is invalid
+    if not validate_payment_type(row["Payment Type"]):
+        return False
+
+    # discard the row if payment type is check and check number is missing
+    if row["Payment Type"] == "check" and row["check number"].strip() == "":
+        return False
+
+    return True
+
+
 def format_data(input_data):
     """
     Formats the input data in preparation for Classy API calls
@@ -47,9 +106,13 @@ def format_data(input_data):
     """
     formatted = []
     for row in input_data:
-        # discard the row if it doesn't have either company name or donor first + last name
-        if not (row["Company Name"] or (row["Donor First Name"] and row["Donor Last Name"])):
+        # discard the row if it is invalid
+        if not validate_row(row):
             continue
+
+        # strip all values for input so we don't have weird issues with spaces before/after text
+        for key, value in row.items():
+            row[key] = value.strip()
 
         transaction = {
             "billing_first_name": row["Donor First Name"] or None,
@@ -79,12 +142,6 @@ def format_data(input_data):
             },
             "member_email_address": row["Billing Email Address"] or None,
             "member_phone": row["donor phone"] or None,
-            "offline_payment_info": {
-                "check_number": row["check number"],
-                "description": "Check donation",
-                "payment_type": "check",
-                "sync_third_party": True,
-            },
             "purchased_at": datetime.strptime(row["Transaction Date"], "%m/%d/%y").strftime("%Y-%m-%dT12:00:00-0500"),
         }
 
@@ -97,10 +154,8 @@ def format_data(input_data):
         if row["Team Page ID"]:
             transaction["fundraising_team_id"] = int(row["Team Page ID"])
 
-        # append an internal comment if it exists
-        if row["special handling"]:
-            description = transaction["offline_payment_info"]["description"]
-            transaction["offline_payment_info"]["description"] = f"{description}: {row['special handling']}"
+        # format the the payment info
+        transaction["offline_payment_info"] = format_offline_payment_info(row)
 
         # Classy has to have a member email in order to have the record show properly, and we need an email to flow
         # through to our CRM, so we set member email to offline+{formatted_email}@metavivor.org, where formatted_email

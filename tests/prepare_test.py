@@ -1,7 +1,7 @@
 import pytest
 
 from config import DEFAULT_CAMPAIGN_ID
-from prepare import format_data, format_type
+from prepare import format_data, format_type, validate_payment_type
 
 
 @pytest.mark.parametrize(
@@ -54,7 +54,7 @@ def test_all_keys_present(data_all_fields):
                 "metadata": {"script": True},
                 "offline_payment_info": {
                     "check_number": "100",
-                    "description": "Check donation: internal note",
+                    "description": "check donation: internal note",
                     "payment_type": "check",
                     "sync_third_party": True,
                 },
@@ -141,11 +141,54 @@ def test_campaign_id(test_input, expected, data_all_fields):
 def test_internal_comment_present(data_all_fields):
     formatted = format_data(data_all_fields)[0]
     offline_payment_info = formatted["transaction"]["offline_payment_info"]
-    assert offline_payment_info["description"] == "Check donation: internal note"
+    assert offline_payment_info["description"] == "check donation: internal note"
 
 
 def test_internal_comment_empty(data_all_fields):
     data_all_fields[0]["special handling"] = ""
     formatted = format_data(data_all_fields)[0]
     offline_payment_info = formatted["transaction"]["offline_payment_info"]
-    assert offline_payment_info["description"] == "Check donation"
+    assert offline_payment_info["description"] == "check donation"
+
+
+@pytest.mark.parametrize(
+    "payment_type, check_number, expected",
+    [
+        pytest.param("check", "1234", 1, id="check type and check number present"),
+        pytest.param("check", "", 0, id="check type present but missing check number"),
+    ],
+)
+def test_check_number_required(payment_type, check_number, expected, data_all_fields):
+    data_all_fields[0]["Payment Type"] = payment_type
+    data_all_fields[0]["check number"] = check_number
+    formatted = format_data(data_all_fields)
+    assert len(formatted) == expected
+
+
+@pytest.mark.parametrize(
+    "payment_type, check_number",
+    [
+        pytest.param("cc", "1234", id="check number filled in but ignored"),
+        pytest.param("eft", "", id="check number empty and ignored"),
+    ],
+)
+def test_check_number_not_required(payment_type, check_number, data_all_fields):
+    data_all_fields[0]["Payment Type"] = payment_type
+    data_all_fields[0]["check number"] = check_number
+    formatted = format_data(data_all_fields)[0]
+    offline_payment_info = formatted["transaction"]["offline_payment_info"]
+    assert offline_payment_info["payment_type"] == payment_type
+    assert "check_number" not in offline_payment_info
+
+
+def test_validate_payment_type_succeeds(data_all_fields):
+    # default type in fixture is check, which is OK
+    payment_type = data_all_fields[0]["Payment Type"]
+    result = validate_payment_type(payment_type)
+    assert result is True
+
+
+def test_validate_payment_type_fails():
+    # default type in fixture is check, which is OK
+    result = validate_payment_type("nonsense")
+    assert result is False
