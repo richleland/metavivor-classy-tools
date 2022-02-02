@@ -110,7 +110,9 @@ def format_data(input_data):
         if not validate_row(row):
             continue
 
-        # TODO: strip all values for input so we don't have weird issues with spaces before/after text
+        # strip all values for input so we don't have weird issues with spaces before/after text
+        for key, value in row.items():
+            row[key] = value.strip()
 
         transaction = {
             "billing_first_name": row["Donor First Name"] or None,
