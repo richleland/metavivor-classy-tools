@@ -1,7 +1,8 @@
 from flask import Flask, redirect, render_template
 
-from api import get_campaigns_from_api
-from forms import UploadForm
+from .api import get_campaigns_from_api
+from .forms import UploadForm
+
 
 app = Flask(__name__)
 app.config.from_object("config")

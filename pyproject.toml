@@ -9,3 +9,5 @@ line-length = 120
 [tool.isort]
 profile = "black"
 line_length = 120
+known_first_party = ["classy_tools"]
+lines_after_imports = 2

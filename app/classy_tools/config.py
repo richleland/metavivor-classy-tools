@@ -1,5 +1,6 @@
 import os
 
+
 CLIENT_ID = os.environ["CLASSY_CLIENT_ID"]
 CLIENT_SECRET = os.environ["CLASSY_CLIENT_SECRET"]
 ORG_ID = os.environ["CLASSY_ORG_ID"]

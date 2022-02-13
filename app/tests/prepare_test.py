@@ -1,5 +1,4 @@
 import pytest
-
 from config import DEFAULT_CAMPAIGN_ID
 from prepare import format_data, format_type, validate_payment_type
 
