@@ -1,6 +1,7 @@
-from config import API_URL, CLIENT_ID, CLIENT_SECRET, TOKEN_URL
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
+
+from classy_tools.config import API_URL, CLIENT_ID, CLIENT_SECRET, TOKEN_URL
 
 
 client = BackendApplicationClient(client_id=CLIENT_ID)

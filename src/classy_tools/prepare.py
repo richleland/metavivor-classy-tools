@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from config import DEFAULT_CAMPAIGN_ID
+from classy_tools.config import DEFAULT_CAMPAIGN_ID
 
 
 def format_type(dedication_type):
