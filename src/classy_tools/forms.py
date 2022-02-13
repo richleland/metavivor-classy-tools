@@ -1,7 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField
-from wtforms.validators import DataRequired
+from flask_wtf.file import FileAllowed, FileField, FileRequired
 
 
 class UploadForm(FlaskForm):
-    name = StringField("name", validators=[DataRequired()])
+    csv_file = FileField(
+        "CSV file",
+        validators=[
+            FileRequired(),
+            FileAllowed(["csv"], "CSV only!"),
+        ],
+    )
