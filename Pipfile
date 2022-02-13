@@ -19,6 +19,7 @@ click = "*"
 flask = "*"
 gunicorn = "*"
 flask-wtf = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.9"
