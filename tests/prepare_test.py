@@ -1,7 +1,7 @@
 import pytest
 
 from config import DEFAULT_CAMPAIGN_ID
-from prepare import format_data, format_type, validate_payment_type
+from prepare import format_data, format_transaction_date, format_type, validate_payment_type
 
 
 @pytest.mark.parametrize(
@@ -192,3 +192,17 @@ def test_validate_payment_type_fails():
     # default type in fixture is check, which is OK
     result = validate_payment_type("nonsense")
     assert result is False
+
+
+@pytest.mark.parametrize(
+    "test_input, expected",
+    [
+        pytest.param("01/04/22", "2022-01-04T12:00:00-0500", id="with leading zeros, two-digit year"),
+        pytest.param("01/04/2022", "2022-01-04T12:00:00-0500", id="with leading zeros, four-digit year"),
+        pytest.param("1/4/22", "2022-01-04T12:00:00-0500", id="without leading zeros, two-digit year"),
+        pytest.param("1/4/2022", "2022-01-04T12:00:00-0500", id="without leading zeros, four-digit year"),
+    ],
+)
+def test_format_transaction_date(test_input, expected):
+    result = format_transaction_date(test_input)
+    assert result == expected

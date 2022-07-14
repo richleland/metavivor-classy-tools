@@ -96,6 +96,15 @@ def validate_row(row):
     return True
 
 
+def format_transaction_date(transaction_date):
+    for format in ("%m/%d/%y", "%m/%d/%Y"):
+        try:
+            return datetime.strptime(transaction_date, format).strftime("%Y-%m-%dT12:00:00-0500")
+        except ValueError:
+            pass
+    raise ValueError(f"Invalid date format: {transaction_date}")
+
+
 def format_data(input_data):
     """
     Formats the input data in preparation for Classy API calls
@@ -143,7 +152,7 @@ def format_data(input_data):
             },
             "member_email_address": row["Billing Email Address"] or None,
             "member_phone": row["donor phone"] or None,
-            "purchased_at": datetime.strptime(row["Transaction Date"], "%m/%d/%y").strftime("%Y-%m-%dT12:00:00-0500"),
+            "purchased_at": format_transaction_date(row["Transaction Date"]),
         }
 
         if row["Donor First Name"] or row["Donor Last Name"]:
