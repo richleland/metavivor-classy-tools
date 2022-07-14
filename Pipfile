@@ -8,7 +8,7 @@ ipython = "*"
 ipdb = "*"
 isort = "*"
 flake8 = "*"
-black = "==22.1.0"
+black = "*"
 safety = "*"
 pytest = "*"
 
