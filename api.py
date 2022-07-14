@@ -75,8 +75,7 @@ def get_fundraising_pages_from_api(campaign_id, url=None):
 
 def create_offline_transaction(campaign_id, payload):
     response = session.post(f"{API_URL}/campaigns/{campaign_id}/transactions", json=payload)
-    response.raise_for_status()
-    return response.json()
+    return (response.ok, response.json())
 
 
 def create_dedication(transaction_id, payload):

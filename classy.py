@@ -87,24 +87,28 @@ def upload_transactions(file_path, dry_run):
     click.echo(f"Transactions to process: {len(formatted)}")
 
     results = {}
+    errors = []
     for item in formatted:
         campaign_id = item["campaign_id"]
         transaction_payload = item["transaction"]
         dedication_payload = item["dedication"]
 
         if not dry_run:
-            transaction_result = create_offline_transaction(campaign_id, transaction_payload)
-            transaction_id = transaction_result["id"]
+            ok, transaction_result = create_offline_transaction(campaign_id, transaction_payload)
+            if ok:
+                transaction_id = transaction_result["id"]
 
-            dedication_result = None
-            if dedication_payload:
-                dedication_result = create_dedication(transaction_id, dedication_payload)
+                dedication_result = None
+                if dedication_payload:
+                    dedication_result = create_dedication(transaction_id, dedication_payload)
 
-            # store the API results
-            results[transaction_id] = {
-                "transaction": transaction_result,
-                "dedication": dedication_result,
-            }
+                # store the API results
+                results[transaction_id] = {
+                    "transaction": transaction_result,
+                    "dedication": dedication_result,
+                }
+            else:
+                errors.append({"paylod": transaction_payload, "result": transaction_result})
 
     right_now = datetime.now().strftime("%Y-%m-%d-%H:%M")
 
@@ -117,9 +121,11 @@ def upload_transactions(file_path, dry_run):
         log_file_path = f"output/upload-results-{right_now}.json"
 
     with open(log_file_path, "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump({"results": results, "errors": errors}, f, indent=2)
 
-    click.secho(f"Done. Upload results logged to {log_file_path}")
+    click.secho(f"Done. Upload results logged to {log_file_path}", fg="green")
+    if errors:
+        click.secho(f"Errors encountered: {len(errors)}. Details in {log_file_path}", fg="red")
 
 
 cli.add_command(list_campaigns)
