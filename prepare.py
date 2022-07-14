@@ -40,7 +40,7 @@ def format_offline_payment_info(row):
     """
     Format offline payment information
     """
-    payment_type = row["Payment Type"]
+    payment_type = row["Payment Type"].lower().strip()
 
     offline_payment_info = {
         "description": f"{payment_type} donation",
@@ -64,6 +64,7 @@ def validate_payment_type(payment_type):
     """
     Ensures that payment type specified is valid for Classy API
     """
+    payment_type = payment_type.lower().strip()
     valid_types = [
         "cash",
         "check",

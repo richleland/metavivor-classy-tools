@@ -132,4 +132,3 @@ dmypy.json
 .vscode
 input/
 output/
-test-run.csv
