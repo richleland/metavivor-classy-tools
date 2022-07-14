@@ -119,7 +119,7 @@ def format_data(input_data):
             "billing_first_name": row["Donor First Name"] or None,
             "billing_last_name": row["Donor Last Name"] or None,
             "billing_address1": row["Billing Address 1"] or None,
-            "billing_address2": row["Billing Address 2"] or None,
+            "billing_address2": row.get("Billing Address 2"),
             "billing_city": row["Billing City"] or None,
             "billing_state": row["Billing State"] or None,
             "billing_postal_code": row["Billing Postal Code"] or None,
