@@ -1,4 +1,7 @@
 from datetime import datetime
+from textwrap import dedent
+
+import click
 
 from config import DEFAULT_CAMPAIGN_ID
 
@@ -77,12 +80,25 @@ def validate_payment_type(payment_type):
         "stock_donations",
         "other",
     ]
-    return payment_type in valid_types
+    valid = payment_type in valid_types
+    if not valid:
+        message = dedent(
+            f"""\
+            Row must contain valid payment type. Value supplied was '{payment_type}'.
+            Valid values: {', '.join(valid_types)}."""
+        )
+        click.secho(
+            message,
+            fg="red",
+        )
+
+    return valid
 
 
 def validate_row(row):
     # discard the row if it doesn't have either company name or donor first + last name
     if not (row["Company Name"] or (row["Donor First Name"] and row["Donor Last Name"])):
+        click.secho(f"Row must contain either donor name or company name. Row: {row}", fg="red")
         return False
 
     # discard the row if the payment type is invalid
@@ -91,6 +107,7 @@ def validate_row(row):
 
     # discard the row if payment type is check and check number is missing
     if row["Payment Type"] == "check" and row["check number"].strip() == "":
+        click.secho(f"Row must contain check number when payment type is 'check'. Row: {row}", fg="red")
         return False
 
     return True
