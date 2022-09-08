@@ -96,11 +96,6 @@ def validate_payment_type(payment_type):
 
 
 def validate_row(row):
-    # discard the row if it doesn't have either company name or donor first + last name
-    if not (row["Company Name"] or (row["Donor First Name"] and row["Donor Last Name"])):
-        click.secho(f"Row must contain either donor name or company name. Row: {row}", fg="red")
-        return False
-
     # discard the row if the payment type is invalid
     if not validate_payment_type(row["Payment Type"]):
         return False
@@ -184,9 +179,7 @@ def format_data(input_data):
         # format the the payment info
         transaction["offline_payment_info"] = format_offline_payment_info(row)
 
-        # Classy has to have a member email in order to have the record show properly, and we need an email to flow
-        # through to our CRM, so we set member email to offline+{formatted_email}@metavivor.org, where formatted_email
-        # is either donor name or company name
+        # ensure there's a member_email_address
         if transaction["member_email_address"] is None:
             transaction["member_email_address"] = format_email(transaction)
 
