@@ -56,7 +56,7 @@ def format_offline_payment_info(row):
         offline_payment_info["check_number"] = row["check number"]
 
     # append an internal comment if it exists
-    if "special handling" in row:
+    if "special handling" in row and row["special handling"]:
         description = offline_payment_info["description"]
         offline_payment_info["description"] = f"{description}: {row['special handling']}"
 

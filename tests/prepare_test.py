@@ -87,14 +87,6 @@ def test_page_ids_are_ints_or_null(data_all_fields, data_no_page_ids):
     assert formatted["transaction"]["fundraising_team_id"] is None
 
 
-def test_empty_when_name_and_company_missing(data_all_fields):
-    data_all_fields[0]["Donor First Name"] = ""
-    data_all_fields[0]["Donor Last Name"] = ""
-    data_all_fields[0]["Company Name"] = ""
-    formatted = format_data(data_all_fields)
-    assert len(formatted) == 0
-
-
 @pytest.mark.parametrize(
     "first_name, last_name, company_name, expected",
     [
