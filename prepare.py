@@ -96,6 +96,11 @@ def validate_payment_type(payment_type):
 
 
 def validate_row(row):
+    # discard the row if it's all empty values
+    if not any(row.values()):
+        click.secho("Discarding empty row.", fg="yellow")
+        return False
+
     # discard the row if the payment type is invalid
     if not validate_payment_type(row["Payment Type"]):
         return False
